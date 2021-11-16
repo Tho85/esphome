@@ -52,7 +52,15 @@ void TuyaClimate::setup() {
   }
   if (this->current_temperature_id_.has_value()) {
     this->parent_->register_listener(*this->current_temperature_id_, [this](const TuyaDatapoint &datapoint) {
-      this->current_temperature = datapoint.value_int * this->current_temperature_multiplier_;
+      if (
+        (datapoint.value_int * this->current_temperature_multiplier_ != 100.0f) ||
+        (this->last_current_temperature_ != std::nanf("") && this->last_current_temperature_ > 95.0f)
+      ) {
+        this->current_temperature = datapoint.value_int * this->current_temperature_multiplier_;
+	this->last_current_temperature_ = this->current_temperature;
+      } else {
+        this->current_temperature = std::nanf("");
+      }
       ESP_LOGV(TAG, "MCU reported current temperature is: %.1f", this->current_temperature);
       this->compute_state_();
       this->publish_state();

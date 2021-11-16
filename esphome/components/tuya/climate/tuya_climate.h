@@ -76,6 +76,7 @@ class TuyaClimate : public climate::Climate, public Component {
   bool heating_state_{false};
   bool cooling_state_{false};
   float manual_temperature_;
+  float last_current_temperature_{20.0f};
   bool eco_;
 };
 
